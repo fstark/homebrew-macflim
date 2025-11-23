@@ -5,10 +5,10 @@ class Flimmaker < Formula
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/fstark/macflim/releases/download/v0.1.0/flimmaker-arm64-macos.tar.gz"
+      url "https://github.com/fstark/macflim/releases/download/v3.0.0/flimmaker-arm64-macos.tar.gz"
       sha256 "PLACEHOLDER_ARM64_SHA256"
     elsif Hardware::CPU.intel?
-      url "https://github.com/fstark/macflim/releases/download/v0.1.0/flimmaker-x86_64-macos.tar.gz"
+      url "https://github.com/fstark/macflim/releases/download/v3.0.0/flimmaker-x86_64-macos.tar.gz"
       sha256 "PLACEHOLDER_X86_64_SHA256"
     end
   end
