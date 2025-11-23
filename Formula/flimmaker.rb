@@ -15,7 +15,7 @@ class Flimmaker < Formula
 
   def install
     # Install everything to libexec to keep libraries bundled
-    libexec.install "bin/flimmaker", "bin/lib"
+    libexec.install "flimmaker", "lib"
     
     # Create wrapper script in bin that calls the binary in libexec
     # The binary's @rpath is set to @executable_path/lib, so it will find libraries correctly
