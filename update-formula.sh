@@ -1,40 +1,43 @@
 #!/bin/bash
 
-# Update formula with SHA256 hashes from GitHub release
+# Update formula with SHA256 hash from GitHub source tarball
 # Usage: ./update-formula.sh VERSION
-# Example: ./update-formula.sh v3.0.1
+# Example: ./update-formula.sh v2.0.11
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 VERSION"
-    echo "Example: $0 v3.0.1"
+    echo "Example: $0 v2.0.11"
     exit 1
 fi
 
 VERSION=$1
-BASE_URL="https://github.com/fstark/macflim/releases/download/${VERSION}"
+SOURCE_URL="https://github.com/fstark/macflim/archive/refs/tags/${VERSION}.tar.gz"
 
-echo "Downloading release artifacts for ${VERSION}..."
+echo "Downloading source tarball for ${VERSION}..."
 
 # Create temp directory
 TMPDIR=$(mktemp -d)
 cd "$TMPDIR"
 
-# Download both tarballs
-echo "Downloading ARM64 tarball..."
-curl -sL "${BASE_URL}/flimmaker-arm64-macos.tar.gz" -o flimmaker-arm64-macos.tar.gz
+# Download source tarball
+echo "Downloading from ${SOURCE_URL}..."
+curl -sL "${SOURCE_URL}" -o source.tar.gz
 
-echo "Downloading x86_64 tarball..."
-curl -sL "${BASE_URL}/flimmaker-x86_64-macos.tar.gz" -o flimmaker-x86_64-macos.tar.gz
+if [ ! -f source.tar.gz ]; then
+    echo "Error: Failed to download source tarball"
+    cd - > /dev/null
+    rm -rf "$TMPDIR"
+    exit 1
+fi
 
-# Compute SHA256 hashes
+# Compute SHA256 hash
 echo ""
-echo "Computing SHA256 hashes..."
-ARM64_SHA=$(shasum -a 256 flimmaker-arm64-macos.tar.gz | awk '{print $1}')
-X86_64_SHA=$(shasum -a 256 flimmaker-x86_64-macos.tar.gz | awk '{print $1}')
+echo "Computing SHA256 hash..."
+SHA256=$(shasum -a 256 source.tar.gz | awk '{print $1}')
 
 echo ""
-echo "ARM64 SHA256:  $ARM64_SHA"
-echo "x86_64 SHA256: $X86_64_SHA"
+echo "Version: $VERSION"
+echo "SHA256:  $SHA256"
 
 # Cleanup
 cd - > /dev/null
@@ -47,12 +50,10 @@ echo "Updating Formula/flimmaker.rb..."
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 FORMULA_PATH="${SCRIPT_DIR}/Formula/flimmaker.rb"
 
-# Update the formula using sed
+# Update the formula - update URL and SHA256
 sed -i.bak \
-    -e "s|download/v[0-9.]\+/flimmaker-arm64-macos.tar.gz|download/${VERSION}/flimmaker-arm64-macos.tar.gz|g" \
-    -e "s|download/v[0-9.]\+/flimmaker-x86_64-macos.tar.gz|download/${VERSION}/flimmaker-x86_64-macos.tar.gz|g" \
-    -e "/Hardware::CPU.arm?/,/sha256/ s/sha256 \"[^\"]*\"/sha256 \"${ARM64_SHA}\"/" \
-    -e "/Hardware::CPU.intel?/,/sha256/ s/sha256 \"[^\"]*\"/sha256 \"${X86_64_SHA}\"/" \
+    -e "s|archive/refs/tags/v[0-9.]\+\.tar\.gz|archive/refs/tags/${VERSION}.tar.gz|g" \
+    -e "s/sha256 \"[^\"]*\"/sha256 \"${SHA256}\"/" \
     "$FORMULA_PATH"
 
 rm "${FORMULA_PATH}.bak"
