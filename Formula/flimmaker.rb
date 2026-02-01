@@ -1,8 +1,8 @@
 class Flimmaker < Formula
   desc "Create classic Macintosh FLIM movies from modern video files"
   homepage "https://github.com/fstark/macflim"
-  url "https://github.com/fstark/macflim/releases/download/v2.0.18/macflim-v2.0.18.tar.gz"
-  sha256 "48acfa59e4f92bab8fd9ce080493104e8977993bd2191f7581461bfc159517f4"
+  url "https://github.com/fstark/macflim/releases/download/v2.0.19/macflim-v2.0.19.tar.gz"
+  sha256 "997bc3cf0f252c4d61351c6cbb8868d13043f32517266af9d085df277f228cdd"
   license "MIT"
 
   depends_on "gcc@14" => :build
